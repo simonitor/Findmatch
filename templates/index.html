@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Findmatch</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+
+</head>
+
+<body>
+    <header>
+        <nav class="navbar is-black" role="navigation" aria-label="main navigation">
+            <div class="navbar-start">
+                <a class="is-size-5 has-text-weight-bold navbar-item" href="/">
+                    Faceit Match Finder
+                </a>
+            </div>
+            <div class="navbar-end">
+                <a class="is-size-5 has-text-weight-bold navbar-item" href="/impressum/index.html" target="_blank">
+                    Impressum
+                </a>
+                <a class="is-size-5 has-text-weight-bold navbar-item" href="/datenschutz/index.html" target="_blank">
+                    Datenschutz
+                </a>
+                <a class="is-size-5 has-text-weight-bold navbar-item" href="https://paypal.me/simb1m" target="_blank">
+                    Donate
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-vcentered">
+                <div class="column is-narrow">
+                    <figure class="image is-96x96">
+                        <img class="is-rounded" src="/assets/pk.png">
+                    </figure>
+                </div>
+                <div class="column is-one-half">
+
+                    {{if .PlayerOne.Nickname}}
+                    {{if or (eq .PlayerOne.Elo 0) (eq .PlayerTwo.Elo 0)}}
+                    <p class="has-text-danger">Could not find both players. Try again!</p>
+                    {{else}}
+                    <p>Cool, I found these two players. They have {{ len .Matches }} common
+                        matches:
+                    </p>
+                    {{ end }}
+                    {{else}}
+                    <p>Hi, type in two Faceit nicknames.</p>
+                    {{ end }}
+
+                </div>
+                {{if .PlayerOne.Nickname}}
+                {{if or (eq .PlayerOne.Elo 0) (eq .PlayerTwo.Elo 0)}}
+                {{else}}
+                <div class="column ml-6">
+                    <div class="columns is-vcentered">
+                        <div class="column is-narrow">
+                            <figure class="image is-96x96">
+                                <img class="is-rounded" src="{{ .PlayerOne.Avatar}}"
+                                    alt="https://bulma.io/images/placeholders/96x96.png">
+                            </figure>
+                        </div>
+                        <div class="column is-narrow">
+                            <p>
+                                {{ .PlayerOne.Nickname}} | {{ .PlayerOne.Elo}} Elo
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="columns is-vcentered">
+                        <div class="column is-narrow">
+                            <figure class="image is-96x96">
+                                <img class="is-rounded" src="{{ .PlayerTwo.Avatar}}"
+                                    alt="https://bulma.io/images/placeholders/96x96.png">
+                            </figure>
+                        </div>
+                        <div class="column is-narrow">
+                            <p>
+                                {{ .PlayerTwo.Nickname}} | {{ .PlayerTwo.Elo}} Elo
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+                {{ end }}
+            </div>
+            <form method="POST">
+                <div class="field is-grouped">
+                    <div class="control ">
+                        <input class="input" type="text" id="playerOne" name="playerOne" placeholder="player one"
+                            spellcheck="false" required />
+                    </div>
+                    <div class="control ">
+                        <input class="input" type="text" id="playerTwo" name="playerTwo" placeholder="player two"
+                            spellcheck="false" required />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control is-expanded">
+                        <button class="button is-success" type="submit">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    {{if gt (len .Matches) 0}}
+
+    <textarea id="links" hidden>
+    {{- range .Matches }}https://www.faceit.com/en/csgo/room/{{- .MatchID}}
+    {{ end }}
+    </textarea>
+    <section>
+        <div>
+            <div class="container">
+                <button class="button is-fullwidth is-success is-outlined" id="copy">Copy all
+                    matchlinks</button>
+                <div class="table-container">
+                    <table class="table is-fullwidth">
+                        {{range .Matches}}
+                        <tr>
+                            <td>{{.CreatedAt | toDate }}</td>
+                            <td><a class="has-text-black" href="https://www.faceit.com/en/csgo/room/{{.MatchID}}"
+                                    target="_blank">https://www.faceit.com/en/csgo/room/{{.MatchID}}
+                                </a></td>
+                        </tr>
+                        {{end}}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    {{end}}
+
+    <script>
+        var button = document.getElementById("copy");
+        button.addEventListener('click', function (event) {
+            navigator.clipboard.writeText(document.getElementById("links").value);
+            button.replaceChildren(document.createTextNode('copied!'))
+        });
+    </script>
+
+</body>
+
+</html>
